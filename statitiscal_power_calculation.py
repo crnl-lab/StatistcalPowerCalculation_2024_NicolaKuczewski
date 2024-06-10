@@ -133,12 +133,20 @@ def fisher(suc1,suc2,animals_sucess1,animals_sucess2,tst):
     
 
 
-
+test_methods = {
+    'Ttest2': Ttest2,
+    'proportion2': proportion2,
+    'fisher': fisher,
+    'Welch': Welch,
+    'MannWhitney': MannWhitney,
+    'Ttest1': Ttest1,
+    'proportion1': proportion1,
+}
 
    
 def run_simulation(
+    method_name='Ttest1', # Ttest1 (compared to the chache level),Ttest2(compare 2 groups),proportion1,proportion2,Wilcoxon1    nWhitney    ,Welch" ,'Permutation','MannWhitney'
     groups=1, # number of experimental groups (if 1 the succes probability is compared to the chache level)
-    tests=Ttest1, # Ttest1 (compared to the chache level),Ttest2(compare 2 groups),proportion1,proportion2,Wilcoxon1    nWhitney    ,Welch" ,'Permutation','MannWhitney'
     trials=8,  # trial repetitions for  each subject
     success_Gp1=50, # % average probability of succes of trained group
     std1=10,# standard deviation of succes  between subjects in  trained group
@@ -151,7 +159,11 @@ def run_simulation(
     repetitions=5, # number or simulations repetition for calculate the average power and 95%CI
     tolerance=0.05, #tolerance error in generated sample mean and std
     ):
-        
+    
+    if method_name not in test_methods:
+        raise ValueError(f"method_name={method_name} must be in {list(test_methods.keys())}")
+    test_method_function = test_methods[method_name]
+
     
     if success_Gp1<success_Gp2 :
         raise ValueError("Sucecs rate of group 1 should be ≥ of sucecs rate of groupe 2")
@@ -196,11 +208,14 @@ def run_simulation(
             success1=np.array(success1)
             
             if groups==1:
-                if tests in [Ttest2,proportion2,fisher,Welch,MannWhitney]: raise Exception ('Wrong test for compareson of one group with the chance level')
-                pval=tests(success1, animals_sucess1,prob2,alternative) 
+                if method_name not in ['Ttest1','proportion1']:
+                    raise Exception ('Wrong test for compareson of one group with the chance level')
+                pval=test_method_function(success1, animals_sucess1,prob2,alternative) 
                 
             elif groups==2:
-                if tests in [Ttest1,proportion1]: raise Exception ('Wrong test for compareson between  two groups')
+                if method_name not in ['Ttest2','proportion2','fisher','Welch','MannWhitney']:
+                    raise Exception ('Wrong test for compareson between  two groups')
+                
                 success2=[]# all succes cumulated by group
                 animals_sucess2=[]# succes rate by animal
                 for panimal in sample2:
@@ -213,7 +228,7 @@ def run_simulation(
                 success2=np.array(success2)
                 
                 
-                pval=tests(success1,success2,animals_sucess1,animals_sucess2,alternative)  
+                pval=test_method_function(success1,success2,animals_sucess1,animals_sucess2,alternative)  
               
                             
             if pval>alpha_risk:
