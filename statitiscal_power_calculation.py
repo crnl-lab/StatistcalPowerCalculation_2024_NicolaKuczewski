@@ -5,11 +5,11 @@ Created on 14/06/2018
 """
 
 from __future__ import division
-from multiprocessing import Pool, TimeoutError
-import time
+# from multiprocessing import Pool, TimeoutError
+# import time
 from scipy import *
 import scipy.stats as st
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
