@@ -6,6 +6,6 @@ dependencies:
   - pip
   - numpy
   - scipy
-  - matpltolib
+  - matplotlib
   - ipywidgets
   - statsmodels
