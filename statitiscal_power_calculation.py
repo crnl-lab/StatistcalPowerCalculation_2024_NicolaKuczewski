@@ -1,7 +1,7 @@
 """
 Created on 14/06/2018
 
-@author: Nicola
+@author: Nicola Kuczewski and Samuel Garcia
 """
 from scipy import *
 import scipy.stats
@@ -12,13 +12,10 @@ from statsmodels.stats.proportion import proportions_ztest
 
 
 def generate_sample(sample_size, desired_mean, desired_std, epsilon, rng=None):
-    # Generate a list with random numbers
+    # Generate a list  of twith random numbers
     if desired_std==0:
         sample= np.full(shape=sample_size, fill_value=desired_mean)
-        return(sample)
-  
-    
-    
+        return(sample)  
     while True:
         # Generate a list of N numbers between 0 and 1
         # num_list = np.random.rand(sample_size)
@@ -42,8 +39,6 @@ def generate_sample(sample_size, desired_mean, desired_std, epsilon, rng=None):
             break
     
     return scaled_list
-
-
 
 
 def CI95(data):
@@ -167,10 +162,9 @@ def run_simulation(
     seed=None,
     ):
     """
-    TODO nico: explication
-
-    This function run 
-
+    This script uses a Monte Carlo simulation to calculate the statistical power of behavioral studies that evaluate  success rates. 
+    It determines how the modification of different  parameters of the  bheavoural and analytical protocol affects statistical power
+    
 
     Parameters
     ----------

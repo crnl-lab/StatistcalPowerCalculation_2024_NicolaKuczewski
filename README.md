@@ -1,6 +1,8 @@
 # StatistcalPowerCalculation_2024_NicolaKuczewski
 
-TODO nico
+
+
+TODO nico : Modifier le README.md
 
 Please click on this binder link to run simulations:
 
