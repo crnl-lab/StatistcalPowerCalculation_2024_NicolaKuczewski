@@ -237,7 +237,6 @@ def run_simulation(
     rng = np.random.default_rng(seed=seed)
 
     sample1=generate_sample(sample_size_grp1,prob1,std_grp1,tolerance, rng=rng)
-    print(sample1)
     # sample1=[0.82372467, 0.70869149, 0.9017045,  0.52705134, 0.60300111, 0.63375287]
     print('Groupe 1 probability of success:',sample1)
     print ('Average probability of groupe 1:',np.mean(sample1))
