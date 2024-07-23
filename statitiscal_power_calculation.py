@@ -5,10 +5,10 @@ Created on 14/06/2018
 """
 from scipy import *
 import scipy.stats
-
 import matplotlib.pyplot as plt
 import numpy as np
 from statsmodels.stats.proportion import proportions_ztest
+
 
 
 def generate_sample(sample_size, desired_mean, desired_std, epsilon, rng=None):
@@ -43,7 +43,7 @@ def generate_sample(sample_size, desired_mean, desired_std, epsilon, rng=None):
 
 def CI95(data):
     CI=scipy.stats.t.interval(0.95, len(data)-1, loc=np.mean(data), scale=scipy.stats.sem(data)) 
-    return[CI[0],CI[1]],np.mean(data)-CI[0]
+    return np.mean(data)-CI[0]
    
     
 def Welch (suc1,suc2,animals_sucess1,animals_sucess2,tst):
@@ -145,14 +145,14 @@ def run_simulation(
 
     num_trial=8,  # trial num_simulation for  each subject
     
-    success_rate_grp1=50, # % average probability of succes of trained group
+    success_rate_grp1=70, # % average probability of succes of trained group
     std_grp1=10,# standard deviation of succes  between subjects in  trained group
-    sample_size_grp1=4,
+    sample_size_grp1=6,
 
     chance_level_grp1=50.,
 
-    success_rate_grp2=30, #% average probability of succes of control group  or chancelevel when only 1 experimental group
-    std_grp2=25,  # standard deviation of succes  between subjects in control group
+    success_rate_grp2=50, #% average probability of succes of control group  or chancelevel when only 1 experimental group
+    std_grp2=10,  # standard deviation of succes  between subjects in control group
     sample_size_grp2=6,
 
     alpha_risk=0.05,    
@@ -177,9 +177,9 @@ def run_simulation(
             * 'Ttest1', 'proportion1'
         If num_group == 2, compare 2 num_group:
             * 'Ttest2', 'proportion2', 'Wilcoxon1', 'nWhitney', 'Welch' , 'Permutation','MannWhitney'
-    num_trial : int, default 8
+    num_trial : int, default 4
         Trial num_simulation for each subject
-    success_rate_grp1 : float, default 50.
+    success_rate_grp1 : float, default 70.
         % average probability of succes of trained group
     std_grp1 : float, default 10.,
         Standard deviation of succes  between subjects in  trained group
@@ -200,7 +200,7 @@ def run_simulation(
         Risk alpha
     num_iteration : int, default 5000
         Number of iteration to computation Monte-Carlo simulation
-    num_simulation : int, default 5
+    num_simulation : int, default 1
         Number or simulations repetition for calculate the average power and 95%CI
     tolerance : float, default 0.05
         Tolerance error in generated sample mean and std
@@ -235,20 +235,31 @@ def run_simulation(
 
 
     rng = np.random.default_rng(seed=seed)
+    
+    print("\033[2mWORK IN PROGRESS")
+    print()
 
     sample1=generate_sample(sample_size_grp1,prob1,std_grp1,tolerance, rng=rng)
-    # sample1=[0.82372467, 0.70869149, 0.9017045,  0.52705134, 0.60300111, 0.63375287]
-    print('Groupe 1 probability of success:',sample1)
-    print ('Average probability of groupe 1:',np.mean(sample1))
-    print ('STD of groupe 1:',np.std(sample1))
+    
+    print ('This simulation was generated with the following sample parameters:')
+    print()
+    smpl1=sample1*100
+    f_sample1 = ["{:.{}f}".format(val, 2) for val in smpl1]
+    print('Groupe 1:')
+    print('Probability of success of the diferent subjects:', f_sample1, '(%)')
+    print (f"Average probability of  success:{np.mean(smpl1):.2f} (%)")
+    print (f"Variability  of success :{np.std(smpl1):.2f} STD(%)")
     print()
     # if num_group==2:
     if mode == 'two-group':
         sample2=generate_sample(sample_size_grp2,prob2,std_grp2,tolerance, rng=rng)
-        # sample2=[0.62003418, 0.23798336, 0.44689089, 0.56752667, 0.58428336, 0.54627834]
-        print('Groupe 2 probability of success:',sample2)
-        print (' Average probability of groupe 2',np.mean(sample2))
-        print (' STD of groupe 2',np.std(sample2))
+        smpl2=sample2*100
+        f_sample2 = ["{:.{}f}".format(val, 2) for val in smpl2]
+        print('Group 2:')
+        print('Probability of success of the diferent subjects:', f_sample2, '(%)')
+        print (f"Average probability of  success:{np.mean(smpl2):.2f} (%)")
+        print (f"Variability  of success :{np.std(smpl2):.2f} STD(%)")
+        
         print()
     power=[]# ratio of false negatives
     for rep in range(num_simulation):
@@ -299,42 +310,49 @@ def run_simulation(
 
 
         if prob1==prob2:
-            print('% Type I error:', fp/num_iteration * 100)
+            tp1=f"{fp/num_iteration * 100:.2f}"
+            print('Type I error simulation',rep+1, ' :',tp1,'%')
             power.append(fp/num_iteration*100)
         else :
-            print('Power:',100-fn/num_iteration*100)
+            pwr=f"{100-fn/num_iteration*100:.2f}"
+            print('Power simulation',rep+1, ' :',pwr,'%')
             power.append(100-fn/num_iteration*100)
-        
+    print()
+    print("\033[2mDONE")
     if prob1==prob2:
-        print('% Type I error mean:',np.mean(power))
-        print('% Type I error 95 CI:',(CI95(power)))
+        print()
+        print(f"Type I error mean:{np.mean(power):.1f} %")
+        if num_simulation>1:
+            print(f"95% CI:{CI95(power):.1f}%")
     else:
         print()
-        print('Power mean:',np.mean(power))
-        print('Power 95 CI:',(CI95(power)))
-      
+        print(f"Mean Power:{np.mean(power):.1f} %")
+        if num_simulation>1:
+            print(f"95% CI:{CI95(power):.1f} %")
+
+    
     
 if __name__=="__main__":
     run_simulation(
-        mode="one-group",
-        method_name='Ttest1',
+        mode="two-group",
+        method_name='Ttest2',
         
         num_trial=8,
 
         success_rate_grp1=70.,
-        std_grp1=5.,
-        sample_size_grp1=4,
+        std_grp1=10.,
+        sample_size_grp1=6,
 
         chance_level_grp1=50.,
 
-        success_rate_grp2=70.,
+        success_rate_grp2=50.,
         std_grp2=10.,
         sample_size_grp2=6,
 
         alpha_risk=0.05,
         num_iteration=5000,
-        num_simulation=5,
+        num_simulation=3,
         tolerance=0.05,
-        seed=2205,
-        # seed=None
+        seed=None,
+       
     )
